@@ -1,4 +1,4 @@
-COMBINATIONS_LIMIT = 20000
+COMBINATIONS_LIMIT = 100000
 
 NULL = 0
 MOVE = -2
@@ -91,42 +91,46 @@ MAIN
 """
 def main():
     while(True):
-        valid = True
         problem_input = input("Enter problem: ")
-        
-        if not(validate_input(problem_input)):
-               continue
+        if not(validate_input(problem_input)): continue
         
         tokens = get_tokens(problem_input)
         if(not(validate_tokens(tokens))): continue
 
-        nb_combinations = get_nb_combinations(tokens)
-        
-        if(nb_combinations>COMBINATIONS_LIMIT):
-            print(nb_combinations,"combinations possible: too much!")
-            continue
-        print(nb_combinations,"combinations possible: valid!")
+        answers = solve(tokens)
 
-        answers = []
-        print()
-        max_moves = int(input("Number of movement allowed:"))
-
-        combinations = []
-        recurs_combination(0, tokens, [], combinations)
-
-        answers = get_valid_combinations(tokens, combinations, max_moves)
-
-        print()
         if(len(answers)):
+            print()
             print("VALID PROBLEM!")
             print("Possible solutions:")
             for answer in answers:
                 print(answer)
-        else:
-            print("INVALID PROBLEM!")
-            print("No solutions exist for this problem")
         print()
 
+def solve(tokens):
+    answers = []
+    nb_combinations = get_nb_combinations(tokens)
+        
+    if(nb_combinations>COMBINATIONS_LIMIT):
+        print(nb_combinations,"combinations possible: too much!")
+        return []
+    print(nb_combinations,"combinations possible: valid!")
+
+    print()
+    max_moves = int(input("Number of movement allowed:"))
+
+    combinations = []
+    recurs_combination(0, tokens, [], combinations)
+
+    answers = get_valid_combinations(tokens, combinations, max_moves)
+
+    if(len(answers)): return answers
+    else:
+        print()
+        print("INVALID PROBLEM!")
+        print("No solutions exist for this problem")
+        return []
+    
 """
 =====================================================
 VALIDATION
