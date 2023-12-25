@@ -1,9 +1,15 @@
+import random
+from datetime import datetime
+random.seed(datetime.now().timestamp())
+
 COMBINATIONS_LIMIT = 100000
 
 NULL = 0
 MOVE = -2
 RECEIVE = 1
 GIVE = -RECEIVE
+
+NB_MAX_MOVES = 2
 
 numbers = ["1","2","3","4","5","6","7","8","9","0"]
 operators = ["+","-","/", "="]
@@ -17,20 +23,20 @@ class Symbol:
 CONSTANTS
 """
 symbols_for = {
-    "0":{"0":NULL, "6":MOVE, "8":RECEIVE, "9":MOVE},
+    "0":{"0":NULL, "6":MOVE,     "8":RECEIVE,"9":MOVE},
     "1":{"1":NULL, "7":RECEIVE},
     "2":{"2":NULL, "3":MOVE},
-    "3":{"3":NULL, "2":MOVE, "5":MOVE, "9":RECEIVE},
+    "3":{"3":NULL, "2":MOVE,    "5":MOVE,    "9":RECEIVE},
     "4":{"4":NULL, },
-    "5":{"5":NULL, "3":MOVE, "6":RECEIVE, "9":RECEIVE},
-    "6":{"6":NULL, "0":MOVE, "5":GIVE, "8":RECEIVE, "9":MOVE},
+    "5":{"5":NULL, "3":MOVE,    "6":RECEIVE, "9":RECEIVE},
+    "6":{"6":NULL, "0":MOVE,    "5":GIVE,    "8":RECEIVE,   "9":MOVE},
     "7":{"7":NULL, "1":GIVE},
-    "8":{"8":NULL, "0":GIVE, "6":GIVE, "9":GIVE},
-    "9":{"9":NULL, "0":MOVE, "3":GIVE, "5":GIVE, "6":MOVE, "8":RECEIVE},
-    "+":{"+":NULL, "-":GIVE, "=":MOVE},
+    "8":{"8":NULL, "0":GIVE,    "6":GIVE,    "9":GIVE},
+    "9":{"9":NULL, "0":MOVE,    "3":GIVE,    "5":GIVE,      "6":MOVE, "8":RECEIVE},
+    "+":{"+":NULL, "-":GIVE,    "=":MOVE},
     "-":{"-":NULL, "+":RECEIVE, "=":RECEIVE},
     "/":{"/":NULL, "-":MOVE},
-    "=":{"=":NULL, "-":GIVE, "+":MOVE}
+    "=":{"=":NULL, "-":GIVE,    "+":MOVE}
 }
 
 """
@@ -90,8 +96,73 @@ def get_nb_combinations(tokens):
 MAIN
 """
 def main():
+    print(" __  __       _______ _____ _    _       _____  _____    ____  ____  _      ______ __  __  ")
+    print("|  \/  |   /\|__   __/ ____| |  | |     |  __ \|  __ \  / __ \|  _ \| |    |  ____|  \/  | ")
+    print("| \  / |  /  \  | | | |    | |__| |     | |__) | |__) || |  | | |_) | |    | |__  | \  / | ")
+    print("| |\/| | / /\ \ | | | |    |  __  |     |  ___/|  _  / | |  | |  _ <| |    |  __| | |\/| | ")
+    print("| |  | |/ ____ \| | | |____| |  | |     | |    | | \ \ | |__| | |_) | |____| |____| |  | | ")
+    print("|_|  |_/_/    \_\_|  \_____|_|  |_|     |_|    |_|  \_\ \____/|____/|______|______|_|  |_| ")
+
+    print("Welcome to this match problem game \n Press G to receive a match problem, or V to display the answers to a match problem")
+    m = ""
+    while True:
+        m = input()
+        if(m == "V" or m == "G"):
+            break
+        else:
+            print("Mauvaise entrée")
+    
+    if m=="G":
+        found = False
+        answer = []
+        tokens = []
+        while not(found):
+            tokens = random_tokens()
+            print("Our token is:",tokens)
+            answer = solve(tokens)
+            if(len(answer)):
+                found = True
+                print("Found a valid combination")
+            else:
+                print("random combination is invalid")
+        
+        ask_user_solve = "Solve "+"".join(tokens)+": "
+        u_response = input(ask_user_solve)
+        
+        if u_response in answer:
+            print("Correct!")
+        else:
+            print("No")
+            print("Correct answer was",answer)
+
+    else:
+        validator()
+
+def random_tokens():
+    tokens = []
+    size = random.randint(3,3)
+    for i in range(size):
+        tokens.append(numbers[random.randint(0,len(numbers)-1)])
+
+    tokens.insert(random.randint(1,len(tokens)-1), "=")
+
+    sub_operators = operators.copy()
+    sub_operators.pop()
+    j=0
+    while j!=len(tokens)-1:
+        if (tokens[j] in numbers) and (tokens[j+1] in numbers):
+            tokens.insert(j+1, sub_operators[random.randint(0,len(sub_operators)-1)])
+        j+=1
+
+    return tokens
+
+"""
+=====================================================
+VALIDATOR
+"""
+def validator():
     while(True):
-        problem_input = input("Enter problem: ")
+        problem_input = input("Enter match problem: ")
         if not(validate_input(problem_input)): continue
         
         tokens = get_tokens(problem_input)
@@ -117,7 +188,7 @@ def solve(tokens):
     print(nb_combinations,"combinations possible: valid!")
 
     print()
-    max_moves = int(input("Number of movement allowed:"))
+    max_moves = NB_MAX_MOVES
 
     combinations = []
     recurs_combination(0, tokens, [], combinations)
